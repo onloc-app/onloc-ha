@@ -1,0 +1,47 @@
+import aiohttp
+import logging
+from typing import Any
+from homeassistant.exceptions import HomeAssistantError
+
+_LOGGER = logging.getLogger(__name__)
+
+
+class CannotConnect(HomeAssistantError):
+    pass
+
+
+class InvalidAuth(HomeAssistantError):
+    pass
+
+
+class OnlocHub:
+    def __init__(self, host: str, api_key: str):
+        self.host = host.rstrip("/")
+        self.api_key = api_key
+        self._session: aiohttp.ClientSession | None = None
+
+    @property
+    def session(self) -> aiohttp.ClientSession:
+        if self._session is None or self._session.closed:
+            self._session = aiohttp.ClientSession()
+        return self._session
+
+    async def close(self):
+        if self._session and not self._session.closed:
+            await self._session.close()
+
+    async def _req(self, endpoint: str) -> Any:
+        url = f"{self.host}{endpoint}"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Accept": "application/json",
+        }
+        async with self.session.get(url, headers=headers, timeout=10) as r:
+            if r.status in (401, 403):
+                raise InvalidAuth
+            if r.status >= 400:
+                raise CannotConnect
+            return await r.json()
+
+    async def get_devices(self) -> list[dict]:
+        return await self._req("/api/devices")
