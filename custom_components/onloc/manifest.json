@@ -1,7 +1,7 @@
 {
   "domain": "onloc",
   "name": "Onloc",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "codeowners": ["@calvicii"],
   "config_flow": true,
   "dependencies": [],

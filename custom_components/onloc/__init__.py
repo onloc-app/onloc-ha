@@ -1,13 +1,15 @@
 import logging
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from .const import DOMAIN, CONF_HOST, CONF_API_KEY
+
+from .const import CONF_API_KEY, CONF_HOST, DOMAIN
 from .coordinator import OnlocCoordinator
-from .hub import OnlocHub, CannotConnect, InvalidAuth
+from .hub import CannotConnect, InvalidAuth, OnlocHub
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = [Platform.DEVICE_TRACKER]
+PLATFORMS = [Platform.DEVICE_TRACKER, Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
