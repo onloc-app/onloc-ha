@@ -44,8 +44,8 @@ class BatterySensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self) -> int | None:
-        loc = self.coordinator.devices[self.device_id].get("latest_location", {})
-        return loc.get("battery")
+        location = self.coordinator.devices[self.device_id].get("latest_location", {})
+        return location.get("battery")
 
     @property
     def icon(self) -> str:

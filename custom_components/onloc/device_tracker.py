@@ -3,10 +3,7 @@ from typing import Any
 
 from homeassistant.components.device_tracker import TrackerEntity
 from homeassistant.components.device_tracker.const import SourceType
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
@@ -42,33 +39,37 @@ class DeviceEntity(CoordinatorEntity, TrackerEntity):
             name=device.get("name"),
         )
 
-        self._data = self.coordinator.devices[self.device_id].get("latest_location", {})
+    def _fetchDevice(self):
+        return self.coordinator.devices[self.device_id]
+
+    def _fetchLocation(self):
+        return self._fetchDevice().get("latest_location", {})
 
     @property
     def icon(self) -> str:
-        return f"mdi:{self.device.get('icon')}"
+        return f"mdi:{self._fetchDevice().get('icon')}"
 
     @property
     def latitude(self) -> float | None:
-        return self._data.get("latitude")
+        return self._fetchLocation().get("latitude")
 
     @property
     def longitude(self) -> float | None:
-        return self._data.get("longitude")
+        return self._fetchLocation().get("longitude")
 
     @property
     def location_accuracy(self) -> int | None:
-        return int(self._data.get("accuracy", 0))
+        return int(self._fetchLocation().get("accuracy", 0))
 
     @property
     def battery_level(self) -> int | None:
-        return self._data.get("battery")
+        return self._fetchLocation().get("battery")
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         return {
-            "altitude": self._data.get("altitude"),
-            "altitude_accuracy": self._data.get("altitude_accuracy"),
-            "last_seen": self._data.get("created_at"),
-            "icon": self.coordinator.devices[self.device_id].get("icon"),
+            "altitude": self._fetchLocation().get("altitude"),
+            "altitude_accuracy": self._fetchLocation().get("altitude_accuracy"),
+            "last_seen": self._fetchLocation().get("created_at"),
+            "icon": self._fetchDevice().get("icon"),
         }

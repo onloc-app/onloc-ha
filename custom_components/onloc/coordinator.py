@@ -1,7 +1,9 @@
 import logging
 from datetime import timedelta
+
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
 from .hub import OnlocHub
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,8 +25,8 @@ class OnlocCoordinator(DataUpdateCoordinator):
 
         self.devices = {}
         device_list = raw.get("devices", [])
-        for dev in device_list:
-            dev_id = dev.get("id")
-            if dev_id:
-                self.devices[str(dev_id)] = dev
+        for device in device_list:
+            device_id = device.get("id")
+            if device_id:
+                self.devices[str(device_id)] = device
         return self.devices
