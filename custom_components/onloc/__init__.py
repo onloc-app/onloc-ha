@@ -9,7 +9,7 @@ from .coordinator import OnlocCoordinator
 from .hub import CannotConnect, InvalidAuth, OnlocHub
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = [Platform.DEVICE_TRACKER, Platform.SENSOR]
+PLATFORMS = [Platform.DEVICE_TRACKER, Platform.SENSOR, Platform.BUTTON]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
