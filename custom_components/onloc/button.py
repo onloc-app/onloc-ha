@@ -1,6 +1,5 @@
 import logging
 
-from config.custom_components.onloc.coordinator import OnlocCoordinator
 from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -18,7 +17,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(entities, True)
 
 
-class RingButton(CoordinatorEntity[OnlocCoordinator], ButtonEntity):
+class RingButton(CoordinatorEntity, ButtonEntity):
     _attr_has_entity_name = True
 
     def __init__(self, coord, device_id: str, device: dict):
