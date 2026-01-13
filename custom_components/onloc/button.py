@@ -13,7 +13,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coord = hass.data[DOMAIN][entry.entry_id]
     await coord.async_refresh()
 
-    entities = [RingButton(coord, dev_id, dev) for dev_id, dev in coord.devices.items()]
+    entities = []
+    for dev_id, dev in coord.devices.items():
+        can_ring = dev.get("can_ring")
+        if can_ring:
+            entities.append(RingButton(coord, dev_id, dev))
+
     async_add_entities(entities, True)
 
 

@@ -15,9 +15,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coord = hass.data[DOMAIN][entry.entry_id]
     await coord.async_refresh()
 
-    entities = [
-        BatterySensor(coord, dev_id, dev) for dev_id, dev in coord.devices.items()
-    ]
+    entities = []
+    for dev_id, dev in coord.devices.items():
+        battery = dev.get("latest_location", {}).get("battery")
+        if battery is not None:
+            entities.append(BatterySensor(coord, dev_id, dev))
+
     async_add_entities(entities, True)
 
 

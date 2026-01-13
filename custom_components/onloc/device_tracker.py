@@ -59,17 +59,28 @@ class DeviceEntity(CoordinatorEntity, TrackerEntity):
 
     @property
     def location_accuracy(self) -> int | None:
-        return int(self._fetchLocation().get("accuracy", 0))
-
-    @property
-    def battery_level(self) -> int | None:
-        return self._fetchLocation().get("battery")
+        accuracy = self._fetchLocation().get("accuracy")
+        return int(accuracy) if accuracy is not None else 0
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
-        return {
-            "altitude": self._fetchLocation().get("altitude"),
-            "altitude_accuracy": self._fetchLocation().get("altitude_accuracy"),
-            "last_seen": self._fetchLocation().get("created_at"),
-            "icon": self._fetchDevice().get("icon"),
-        }
+        attributes: dict[str, Any] = {}
+
+        location = self._fetchLocation()
+
+        if (battery := location.get("battery")) is not None:
+            attributes["battery"] = battery
+
+        if (altitude := location.get("altitude")) is not None:
+            attributes["altitude"] = altitude
+
+        if (altitude_accuracy := location.get("altitude_accuracy")) is not None:
+            attributes["altitude_accuracy"] = altitude_accuracy
+
+        if (created_at := location.get("created_at")) is not None:
+            attributes["last_seen"] = created_at
+
+        if (icon := self._fetchDevice().get("icon")) is not None:
+            attributes["icon"] = icon
+
+        return attributes
