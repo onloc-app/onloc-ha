@@ -4,6 +4,7 @@ from typing import Any
 from homeassistant.components.device_tracker import TrackerEntity
 from homeassistant.components.device_tracker.const import SourceType
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 
@@ -27,7 +28,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(entities, True)
 
 
-class DeviceEntity(TrackerEntity):
+class DeviceEntity(CoordinatorEntity, TrackerEntity):
     """The tracker entity."""
 
     _attr_has_entity_name = True
@@ -36,7 +37,7 @@ class DeviceEntity(TrackerEntity):
     def __init__(self, coordinator, device_id: str, device: dict):
         """Initializes the tracker."""
 
-        super().__init__()
+        super().__init__(coordinator)
         self.coordinator = coordinator
 
         self.device_id = device_id

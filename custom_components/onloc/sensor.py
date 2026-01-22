@@ -1,7 +1,5 @@
 import logging
 
-from propcache.api import cached_property
-
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.components.sensor.const import SensorStateClass
 from homeassistant.const import PERCENTAGE, EntityCategory
@@ -28,7 +26,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(entities, True)
 
 
-class BatterySensor(SensorEntity):
+class BatterySensor(CoordinatorEntity, SensorEntity):
     """The battery sensor."""
 
     _attr_has_entity_name = True
@@ -40,7 +38,7 @@ class BatterySensor(SensorEntity):
     def __init__(self, coordinator, device_id: str, device: dict):
         """Initializes the battery entity."""
 
-        super().__init__()
+        super().__init__(coordinator)
         self.coordinator = coordinator
 
         self.device_id = device_id

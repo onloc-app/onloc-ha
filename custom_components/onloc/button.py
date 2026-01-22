@@ -2,6 +2,7 @@ import logging
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 
@@ -26,7 +27,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(entities, True)
 
 
-class RingButton(ButtonEntity):
+class RingButton(CoordinatorEntity, ButtonEntity):
     """Button used to ring a device."""
 
     _attr_has_entity_name = True
@@ -34,7 +35,7 @@ class RingButton(ButtonEntity):
     def __init__(self, coordinator, device_id: str, device: dict):
         """Initializes the button."""
 
-        super().__init__()
+        super().__init__(coordinator)
         self.coordinator = coordinator
 
         self.device_id = device_id
@@ -63,7 +64,7 @@ class RingButton(ButtonEntity):
             raise
 
 
-class LockButton(ButtonEntity):
+class LockButton(CoordinatorEntity, ButtonEntity):
     """Button used to lock a device."""
 
     _attr_has_entity_name = True
@@ -71,7 +72,7 @@ class LockButton(ButtonEntity):
     def __init__(self, coordinator, device_id: str, device: dict):
         """Initializes the button."""
 
-        super().__init__()
+        super().__init__(coordinator)
         self.coordinator = coordinator
 
         self.device_id = device_id
