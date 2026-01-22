@@ -55,14 +55,14 @@ class BatterySensor(SensorEntity):
             identifiers={(DOMAIN, device_id)},
         )
 
-    @cached_property
+    @property
     def native_value(self) -> int | None:
         """The battery level."""
 
         location = self.coordinator.devices[self.device_id].get("latest_location", {})
         return location.get("battery")
 
-    @cached_property
+    @property
     def icon(self) -> str:
         """The battery's icon based on its level."""
 

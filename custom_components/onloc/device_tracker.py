@@ -1,12 +1,9 @@
 import logging
 from typing import Any
 
-from propcache.api import cached_property
-
 from homeassistant.components.device_tracker import TrackerEntity
 from homeassistant.components.device_tracker.const import SourceType
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 
@@ -53,7 +50,7 @@ class DeviceEntity(TrackerEntity):
     def _fetchLocation(self):
         return self._fetchDevice().get("latest_location", {})
 
-    @cached_property
+    @property
     def device_info(self) -> DeviceInfo:
         """Information on the device."""
 
@@ -61,32 +58,32 @@ class DeviceEntity(TrackerEntity):
             identifiers={(DOMAIN, self.device_id)}, name=self.device.get("name")
         )
 
-    @cached_property
+    @property
     def icon(self) -> str:
         """The icon representing the device."""
 
         return f"mdi:{self._fetchDevice().get('icon')}"
 
-    @cached_property
+    @property
     def latitude(self) -> float | None:
         """Device's latest latitude."""
 
         return self._fetchLocation().get("latitude")
 
-    @cached_property
+    @property
     def longitude(self) -> float | None:
         """Device's latest longitude."""
 
         return self._fetchLocation().get("longitude")
 
-    @cached_property
+    @property
     def location_accuracy(self) -> float:
         """Device's latest locations's accuracy."""
 
         accuracy = self._fetchLocation().get("accuracy")
         return float(accuracy) if accuracy is not None else 0
 
-    @cached_property
+    @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         """Some extra information about the device's location."""
 
