@@ -1,16 +1,26 @@
 import voluptuous as vol
+
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_API_KEY
+from homeassistant.const import CONF_API_KEY, CONF_HOST
+
 from .const import DOMAIN
-from .hub import OnlocHub, CannotConnect, InvalidAuth
+from .hub import CannotConnect, InvalidAuth, OnlocHub
 
 SCHEMA = vol.Schema({vol.Required(CONF_HOST): str, vol.Required(CONF_API_KEY): str})
 
 
 class OnlocFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Setup flow in Home Assistant."""
+
     VERSION = 1
 
     async def async_step_user(self, user_input=None):
+        """Manages the creation of the integration in Home Assistant.
+
+        Uses the URL and API key given on setup to create Onloc devices
+        in Home assistant.
+        """
+
         errors = {}
         if user_input:
             hub = OnlocHub(user_input[CONF_HOST], user_input[CONF_API_KEY])

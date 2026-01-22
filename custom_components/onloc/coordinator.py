@@ -2,7 +2,7 @@ from datetime import timedelta
 import logging
 
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .hub import OnlocHub
 
@@ -10,7 +10,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class OnlocCoordinator(DataUpdateCoordinator):
+    """Manages data fetching."""
+
     def __init__(self, hass: HomeAssistant, hub: OnlocHub):
+        """Initializes the integration."""
+
         self.hub = hub
         self.devices = {}
         super().__init__(

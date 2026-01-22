@@ -1,5 +1,7 @@
 import logging
 
+from propcache.api import cached_property
+
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.components.sensor.const import SensorStateClass
 from homeassistant.const import PERCENTAGE, EntityCategory
@@ -12,27 +14,35 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    coord = hass.data[DOMAIN][entry.entry_id]
-    await coord.async_refresh()
+    """Creates the battery entity for devices that support it."""
+
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    await coordinator.async_refresh()
 
     entities = []
-    for dev_id, dev in coord.devices.items():
-        battery = dev.get("latest_location", {}).get("battery")
+    for device_id, device in coordinator.devices.items():
+        battery = device.get("latest_location", {}).get("battery")
         if battery is not None:
-            entities.append(BatterySensor(coord, dev_id, dev))
+            entities.append(BatterySensor(coordinator, device_id, device))
 
     async_add_entities(entities, True)
 
 
-class BatterySensor(CoordinatorEntity, SensorEntity):
+class BatterySensor(SensorEntity):
+    """The battery sensor."""
+
     _attr_has_entity_name = True
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_device_class = SensorDeviceClass.BATTERY
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_state_class = SensorStateClass.MEASUREMENT
 
-    def __init__(self, coord, device_id: str, device: dict):
-        super().__init__(coord)
+    def __init__(self, coordinator, device_id: str, device: dict):
+        """Initializes the battery entity."""
+
+        super().__init__()
+        self.coordinator = coordinator
+
         self.device_id = device_id
         self.device = device
 
@@ -45,13 +55,17 @@ class BatterySensor(CoordinatorEntity, SensorEntity):
             identifiers={(DOMAIN, device_id)},
         )
 
-    @property
+    @cached_property
     def native_value(self) -> int | None:
+        """The battery level."""
+
         location = self.coordinator.devices[self.device_id].get("latest_location", {})
         return location.get("battery")
 
-    @property
+    @cached_property
     def icon(self) -> str:
+        """The battery's icon based on its level."""
+
         level = self.native_value
         if level is None:
             return "mdi:battery-unknown"

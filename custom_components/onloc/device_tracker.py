@@ -1,6 +1,8 @@
 import logging
 from typing import Any
 
+from propcache.api import cached_property
+
 from homeassistant.components.device_tracker import TrackerEntity
 from homeassistant.components.device_tracker.const import SourceType
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -12,32 +14,38 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    coord = hass.data[DOMAIN][entry.entry_id]
-    await coord.async_refresh()
+    """Creates the device's tracker entity.
+
+    This entity is the one shown on the map that
+    stores the device's location.
+    """
+
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    await coordinator.async_refresh()
 
     entities = [
-        DeviceEntity(coord, dev_id, dev) for dev_id, dev in coord.devices.items()
+        DeviceEntity(coordinator, device_id, device)
+        for device_id, device in coordinator.devices.items()
     ]
     async_add_entities(entities, True)
 
 
-class DeviceEntity(CoordinatorEntity, TrackerEntity):
+class DeviceEntity(TrackerEntity):
+    """The tracker entity."""
+
     _attr_has_entity_name = True
     _attr_source_type = SourceType.GPS
 
-    _attr_device_info: DeviceInfo | None = None
+    def __init__(self, coordinator, device_id: str, device: dict):
+        """Initializes the tracker."""
 
-    def __init__(self, coord, device_id: str, device: dict):
-        super().__init__(coord)
+        super().__init__()
+        self.coordinator = coordinator
+
         self.device_id = device_id
         self.device = device
         self._attr_unique_id = f"{DOMAIN}_{device_id}"
         self._attr_name = "Location"
-
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, device_id)},
-            name=device.get("name"),
-        )
 
     def _fetchDevice(self):
         return self.coordinator.devices[self.device_id]
@@ -45,25 +53,43 @@ class DeviceEntity(CoordinatorEntity, TrackerEntity):
     def _fetchLocation(self):
         return self._fetchDevice().get("latest_location", {})
 
-    @property
+    @cached_property
+    def device_info(self) -> DeviceInfo:
+        """Information on the device."""
+
+        return DeviceInfo(
+            identifiers={(DOMAIN, self.device_id)}, name=self.device.get("name")
+        )
+
+    @cached_property
     def icon(self) -> str:
+        """The icon representing the device."""
+
         return f"mdi:{self._fetchDevice().get('icon')}"
 
-    @property
+    @cached_property
     def latitude(self) -> float | None:
+        """Device's latest latitude."""
+
         return self._fetchLocation().get("latitude")
 
-    @property
+    @cached_property
     def longitude(self) -> float | None:
+        """Device's latest longitude."""
+
         return self._fetchLocation().get("longitude")
 
-    @property
-    def location_accuracy(self) -> int | None:
-        accuracy = self._fetchLocation().get("accuracy")
-        return int(accuracy) if accuracy is not None else 0
+    @cached_property
+    def location_accuracy(self) -> float:
+        """Device's latest locations's accuracy."""
 
-    @property
+        accuracy = self._fetchLocation().get("accuracy")
+        return float(accuracy) if accuracy is not None else 0
+
+    @cached_property
     def extra_state_attributes(self) -> dict[str, Any] | None:
+        """Some extra information about the device's location."""
+
         attributes: dict[str, Any] = {}
 
         location = self._fetchLocation()
