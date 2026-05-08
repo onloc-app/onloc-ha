@@ -2,7 +2,7 @@
   "domain": "onloc",
   "name": "Onloc",
   "version": "1.0.8",
-  "codeowners": ["@calvicii"],
+  "codeowners": ["@onloc-app"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://onloc.app/docs/category/home-assistant",
