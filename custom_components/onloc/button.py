@@ -1,3 +1,5 @@
+"""Button platform for the integration."""
+
 import logging
 
 from homeassistant.components.button import ButtonEntity
@@ -20,9 +22,14 @@ async def async_setup_entry(hass, entry, async_add_entities):
         can_ring = device.get("can_ring")
         if can_ring:
             entities.append(RingButton(coordinator, device_id, device))
+
         can_lock = device.get("can_lock")
         if can_lock:
             entities.append(LockButton(coordinator, device_id, device))
+
+        can_flash = device.get("can_flash")
+        if can_flash:
+            entities.append(FlashButton(coordinator, device_id, device))
 
     async_add_entities(entities, True)
 
@@ -97,5 +104,40 @@ class LockButton(CoordinatorEntity, ButtonEntity):
         except Exception as error:
             _LOGGER.error(
                 "Failed to send lock command to %s: %s", self.device_id, error
+            )
+            raise
+
+
+class FlashButton(CoordinatorEntity, ButtonEntity):
+    """Button used to flash a device."""
+
+    _attr_has_entity_name = True
+
+    def __init__(self, coordinator, device_id: str, device: dict):
+        """Initializes the button."""
+
+        super().__init__(coordinator)
+        self.device_id = device_id
+        self.device = device
+
+        self._attr_unique_id = f"{DOMAIN}_{device_id}_flash"
+        self._attr_name = "Flash"
+        self._attr_icon = "mdi:lightbulb-on-outline"
+
+        # Link to the same device
+        self._attr_device_info = DeviceInfo(identifiers={(DOMAIN, device_id)})
+
+    async def async_press(self) -> None:
+        """Triggered when the button is pressed.
+
+        Sends a request to flash the device.
+        """
+
+        try:
+            await self.coordinator.hub.flash_device(self.device_id)
+            _LOGGER.info("Sent flash command to device %s", self.device_id)
+        except Exception as error:
+            _LOGGER.error(
+                "Failed to send flash command to %s: %s", self.device_id, error
             )
             raise

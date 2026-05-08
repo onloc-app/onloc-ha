@@ -1,5 +1,4 @@
 import logging
-from socket import timeout
 from typing import Any, TypedDict
 
 import aiohttp
@@ -93,6 +92,23 @@ class OnlocHub:
         """Sends a lock command to Onloc's API in order to lock a device."""
 
         url = f"{self.host}/api/devices/{device_id}/lock"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Accept": "application/json",
+        }
+        async with self.session.post(
+            url, headers=headers, timeout=ClientTimeout(total=15)
+        ) as response:
+            if response.status in (401, 403):
+                raise InvalidAuth
+            if response.status >= 400:
+                raise CannotConnect
+            return
+
+    async def flash_device(self, device_id) -> None:
+        """Sends a flash command to Onloc's API in order to make a device flash."""
+
+        url = f"{self.host}/api/devices/{device_id}/flash"
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Accept": "application/json",
