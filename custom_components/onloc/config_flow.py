@@ -1,3 +1,5 @@
+"""Config flow to setup the integration using Home Assistant's UI."""
+
 import voluptuous as vol
 
 from homeassistant import config_entries

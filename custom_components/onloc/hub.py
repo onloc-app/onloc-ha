@@ -1,3 +1,5 @@
+"""Interacts with the Onloc instance. Fetches/sends data from/to the server."""
+
 import logging
 from typing import Any, TypedDict
 

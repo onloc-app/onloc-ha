@@ -1,3 +1,5 @@
+"""Sensor platform for the integration."""
+
 import logging
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
