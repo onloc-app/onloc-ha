@@ -60,7 +60,12 @@ class BatterySensor(CoordinatorEntity, SensorEntity):
         """The battery level."""
 
         location = self.coordinator.devices[self.device_id].get("latest_location", {})
-        return location.get("battery")
+        battery = location.get("battery")
+        try:
+            return int(battery) if battery is not None else None
+        except (TypeError, ValueError):
+            _LOGGER.debug("Invalid battery value for %s: %r", self.device_id, battery)
+            return None
 
     @property
     def icon(self) -> str:

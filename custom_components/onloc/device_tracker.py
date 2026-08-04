@@ -65,7 +65,7 @@ class DeviceEntity(CoordinatorEntity, TrackerEntity):
     def icon(self) -> str:
         """The icon representing the device."""
 
-        return f"mdi:{self._fetchDevice().get('icon')}"
+        return f"mdi:{self._fetchDevice().get("icon")}"
 
     @property
     def latitude(self) -> float | None:
