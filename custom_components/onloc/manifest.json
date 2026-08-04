@@ -1,7 +1,7 @@
 {
   "domain": "onloc",
   "name": "Onloc",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "codeowners": ["@onloc-app"],
   "config_flow": true,
   "dependencies": [],
